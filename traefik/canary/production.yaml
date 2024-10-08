@@ -1,0 +1,42 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: echo-production
+  namespace: echo
+spec:
+  revisionHistoryLimit: 0
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: echo-production
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: echo-production
+    spec:
+      containers:
+        - name: hello
+          image: hashicorp/http-echo
+          command:
+            - /http-echo
+            - -text=hello production
+          ports:
+            - name: http
+              containerPort: 5678
+          resources: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echo-production
+  namespace: echo
+  labels:
+    app.kubernetes.io/name: echo-production
+spec:
+  selector:
+    app.kubernetes.io/name: echo-production
+  ports:
+    - protocol: TCP
+      port: 5678

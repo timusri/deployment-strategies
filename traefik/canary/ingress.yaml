@@ -1,0 +1,30 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: TraefikService
+metadata:
+  name: echo
+  namespace: echo
+spec:
+  weighted:
+    services:
+      - name: echo-production
+        weight: 3
+        port: 5678
+      - name: echo-canary
+        weight: 7
+        port: 5678
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: echo
+  namespace: echo
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`demo-canary.invideo.io`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+        - name: echo
+          kind: TraefikService
